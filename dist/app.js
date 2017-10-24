@@ -29,7 +29,10 @@ module.exports = {retrieveKeys};
 },{"./firebaseApi":4,"./tmdb":6}],2:[function(require,module,exports){
 "use strict";
 
-const domString = (movieArray, imgConfig) => {
+const domString = (movieArray, imgConfig, divName) => {
+	console.log("divName", divName);
+	console.log("imgConfig", imgConfig);
+	console.log("movieArray", movieArray);
 	let domStrang = '';
 	for (let i = 0; i < movieArray.length; i++) {
 		if (i % 3 === 0) {
@@ -40,8 +43,8 @@ const domString = (movieArray, imgConfig) => {
 		domStrang +=   `<div class="thumbnail">`;
 		domStrang +=     `<img src="" alt="">`;
 		domStrang +=     `<div class="caption">`;
-		domStrang +=       `<img src="${imgConfig.base_url}w300${movieArray[i].poster_path}">`;
-		domStrang +=       `<h3>${movieArray[i].original_title}</h3>`;
+		domStrang +=       `<img src="${imgConfig.base_url}w342/${movieArray[i].poster_path}">`;
+		domStrang +=       `<h3>${movieArray[i].title}</h3>`;
 		domStrang +=       `<p>${movieArray[i].overview}</p>`;
 		domStrang +=       `<p><a href="#" class="btn btn-primary" role="button">Review</a> <a href="#" class="btn btn-default" role="button">Watchlist</a></p>`;
 		domStrang +=     `</div>`;
@@ -51,15 +54,16 @@ const domString = (movieArray, imgConfig) => {
 			domStrang += `</div>`;
 		}
 	}
-	printToDom(domStrang);
+	printToDom(domStrang, divName);
 };
 
-const printToDom = (strang) => {
-	$('#movies').append(strang);
+const printToDom = (strang, divName) => {
+	console.log("string", strang, divName);
+	$(`#${divName}`).append(strang);
 };
 
-const clearDom = () => {
-	$('#movies').html('');
+const clearDom = (divName) => {
+	$(`#${divName}`).html('');
 };
 
 module.exports = {domString, clearDom};
@@ -68,6 +72,7 @@ module.exports = {domString, clearDom};
 
 const tmdb = require('./tmdb');
 const firebaseApi = require('./firebaseApi');
+const dom = require('./dom');
 
 const pressEnter = () => {
 	$(document).keypress((e) => {
@@ -86,6 +91,14 @@ const myLinks = () => {
 			$("#myMovies").addClass("hide");
 			$("#authScreen").addClass("hide");
 		}else if(event.target.id === "mine"){
+			console.log("inside mine");
+			firebaseApi.getMovieList().then((results) => {
+				dom.clearDom('moviesMine');
+				dom.domString(results, tmdb.getImgConfig(), 'moviesMine');
+				console.log(tmdb.getImgConfig());
+			}).catch((err) => {
+				console.log("error in getMovieList", err);
+			});
 			$("#search").addClass("hide");
 			$("#myMovies").removeClass("hide");
 			$("#authScreen").addClass("hide");
@@ -108,7 +121,7 @@ const googleAuth = () => {
 };
 
 module.exports = {pressEnter, myLinks, googleAuth};
-},{"./firebaseApi":4,"./tmdb":6}],4:[function(require,module,exports){
+},{"./dom":2,"./firebaseApi":4,"./tmdb":6}],4:[function(require,module,exports){
 "use strict";
 
 let firebaseKey = "";
@@ -132,7 +145,25 @@ let authenticateGoogle = () => {
 	});
 };
 
-module.exports = {setKey, authenticateGoogle};
+const getMovieList = () => {
+	let movies = [];
+	return new Promise((resolve, reject) => {
+		$.ajax(`${firebaseKey.databaseURL}/movies.json?orderBy="uid"&equalTo="${userUid}"`).then((fbMovies) => {
+			if(fbMovies != null){
+				Object.keys(fbMovies).forEach((key) => {
+				fbMovies[key].id = key;
+				movies.push(fbMovies[key]);
+				});
+			}
+			
+			resolve(movies);
+		}).catch((err) => {
+			reject(err);
+		});
+	});
+};
+
+module.exports = {setKey, authenticateGoogle, getMovieList};
 },{}],5:[function(require,module,exports){
 "use strict";
 
@@ -196,12 +227,15 @@ const setKey = (apiKey) => {
 };
 
 const showResults = (movieArray) => {
-	// dom.domString
-	dom.clearDom();
-	dom.domString(movieArray, imgConfig);
+	dom.clearDom('movies');
+	dom.domString(movieArray, imgConfig, 'movies');
 };
 
-module.exports = {setKey, searchMovies};
+const getImgConfig = () => {
+	return imgConfig;
+};
+
+module.exports = {setKey, searchMovies, getImgConfig};
 
 
 
