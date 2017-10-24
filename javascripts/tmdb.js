@@ -50,12 +50,15 @@ const setKey = (apiKey) => {
 };
 
 const showResults = (movieArray) => {
-	// dom.domString
-	dom.clearDom();
-	dom.domString(movieArray, imgConfig);
+	dom.clearDom('movies');
+	dom.domString(movieArray, imgConfig, 'movies');
 };
 
-module.exports = {setKey, searchMovies};
+const getImgConfig = () => {
+	return imgConfig;
+};
+
+module.exports = {setKey, searchMovies, getImgConfig};
 
 
 
