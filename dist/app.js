@@ -29,7 +29,7 @@ module.exports = {retrieveKeys};
 },{"./firebaseApi":4,"./tmdb":6}],2:[function(require,module,exports){
 "use strict";
 
-const domString = (movieArray, imgConfig, divName) => {
+const domString = (movieArray, imgConfig, divName, search) => {
 	console.log("divName", divName);
 	console.log("imgConfig", imgConfig);
 	console.log("movieArray", movieArray);
@@ -41,12 +41,22 @@ const domString = (movieArray, imgConfig, divName) => {
 		}
 		domStrang += `<div class="col-sm-6 col-md-4 movie">`;
 		domStrang +=   `<div class="thumbnail">`;
+
+		if(!search){
+			domStrang +=     `<button class="btn btn-default" data-firebase-id="${movieArray[i].id}">X</button>`;
+		}
+
 		domStrang +=     `<img src="" alt="">`;
 		domStrang +=     `<div class="caption">`;
 		domStrang +=       `<img class="poster_path" src="${imgConfig.base_url}w342/${movieArray[i].poster_path}">`;
 		domStrang +=       `<h3 class="title">${movieArray[i].title}</h3>`;
 		domStrang +=       `<p class="overview">${movieArray[i].overview}</p>`;
-		domStrang +=       `<p><a class="btn btn-primary review" role="button">Review</a> <a class="btn btn-default wishlist" role="button">Wishlist</a></p>`;
+		if(search){
+			domStrang +=       `<p><a class="btn btn-primary review" role="button">Review</a> <a class="btn btn-default wishlist" role="button">Wishlist</a></p>`;
+		} else {
+			domStrang += `<p>Rating: ${movieArray[i].rating}</p>`;
+		}
+		
 		domStrang +=     `</div>`;
 		domStrang +=   `</div>`;
 		domStrang += `</div>`;
@@ -93,7 +103,7 @@ const myLinks = () => {
 		}else if(event.target.id === "mine"){
 			firebaseApi.getMovieList().then((results) => {
 				dom.clearDom('moviesMine');
-				dom.domString(results, tmdb.getImgConfig(), 'moviesMine');
+				dom.domString(results, tmdb.getImgConfig(), 'moviesMine', false);
 			}).catch((err) => {
 				console.log("error in getMovieList", err);
 			});
@@ -306,7 +316,7 @@ const setKey = (apiKey) => {
 
 const showResults = (movieArray) => {
 	dom.clearDom('movies');
-	dom.domString(movieArray, imgConfig, 'movies');
+	dom.domString(movieArray, imgConfig, 'movies', true);
 };
 
 const getImgConfig = () => {
