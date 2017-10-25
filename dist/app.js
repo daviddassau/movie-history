@@ -36,14 +36,13 @@ const domString = (movieArray, imgConfig, divName, search) => {
 	let domStrang = '';
 	for (let i = 0; i < movieArray.length; i++) {
 		if (i % 3 === 0) {
-			// console.log(i % 3);
 			domStrang += `<div class="row">`;
 		}
 		domStrang += `<div class="col-sm-6 col-md-4 movie">`;
 		domStrang +=   `<div class="thumbnail">`;
 
 		if(!search){
-			domStrang +=     `<button class="btn btn-default" data-firebase-id="${movieArray[i].id}">X</button>`;
+			domStrang +=     `<button class="btn btn-default delete" data-firebase-id="${movieArray[i].id}">X</button>`;
 		}
 
 		domStrang +=     `<img src="" alt="">`;
@@ -68,7 +67,6 @@ const domString = (movieArray, imgConfig, divName, search) => {
 };
 
 const printToDom = (strang, divName) => {
-	console.log("string", strang, divName);
 	$(`#${divName}`).append(strang);
 };
 
@@ -171,12 +169,24 @@ const reviewEvents = () => {
 	});
 };
 
+const deleteMovie = () => {
+	$('body').on('click', '.delete', (e) => {
+		let movieId = $(e.target).data('firebase-id');
+		firebaseApi.deleteMovie(movieId).then((results) => {
+			console.log("results", results);
+		}).catch((error) => {
+			console.log("error in deleteMovie", error);
+		});
+	});
+};
+
 const init = () => {
 	myLinks();
     googleAuth();
     pressEnter();
     wishListEvents();
     reviewEvents();
+    deleteMovie();
 };
 
 
@@ -240,6 +250,18 @@ const saveMovie = (movie) => {
 	});
 };
 
+const deleteMovie = (movieId) => {
+	return new Promise((resolve, reject) => {
+		$.ajax({
+			method: "DELETE",
+			url: `${firebaseKey.databaseURL}/movies/${movieId}.json`,
+		}).then((fbMovie) => {
+			resolve(fbMovie);
+		}).catch((err) => {
+			reject(err);
+		});
+	});
+};
 
 
 
@@ -252,8 +274,7 @@ const saveMovie = (movie) => {
 
 
 
-
-module.exports = {setKey, authenticateGoogle, getMovieList, saveMovie};
+module.exports = {setKey, authenticateGoogle, getMovieList, saveMovie, deleteMovie};
 },{}],5:[function(require,module,exports){
 "use strict";
 

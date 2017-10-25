@@ -91,12 +91,24 @@ const reviewEvents = () => {
 	});
 };
 
+const deleteMovie = () => {
+	$('body').on('click', '.delete', (e) => {
+		let movieId = $(e.target).data('firebase-id');
+		firebaseApi.deleteMovie(movieId).then((results) => {
+			console.log("results", results);
+		}).catch((error) => {
+			console.log("error in deleteMovie", error);
+		});
+	});
+};
+
 const init = () => {
 	myLinks();
     googleAuth();
     pressEnter();
     wishListEvents();
     reviewEvents();
+    deleteMovie();
 };
 
 

@@ -7,14 +7,13 @@ const domString = (movieArray, imgConfig, divName, search) => {
 	let domStrang = '';
 	for (let i = 0; i < movieArray.length; i++) {
 		if (i % 3 === 0) {
-			// console.log(i % 3);
 			domStrang += `<div class="row">`;
 		}
 		domStrang += `<div class="col-sm-6 col-md-4 movie">`;
 		domStrang +=   `<div class="thumbnail">`;
 
 		if(!search){
-			domStrang +=     `<button class="btn btn-default" data-firebase-id="${movieArray[i].id}">X</button>`;
+			domStrang +=     `<button class="btn btn-default delete" data-firebase-id="${movieArray[i].id}">X</button>`;
 		}
 
 		domStrang +=     `<img src="" alt="">`;
@@ -39,7 +38,6 @@ const domString = (movieArray, imgConfig, divName, search) => {
 };
 
 const printToDom = (strang, divName) => {
-	console.log("string", strang, divName);
 	$(`#${divName}`).append(strang);
 };
 
