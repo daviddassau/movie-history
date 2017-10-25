@@ -21,11 +21,9 @@ const myLinks = () => {
 			$("#myMovies").addClass("hide");
 			$("#authScreen").addClass("hide");
 		}else if(event.target.id === "mine"){
-			console.log("inside mine");
 			firebaseApi.getMovieList().then((results) => {
 				dom.clearDom('moviesMine');
 				dom.domString(results, tmdb.getImgConfig(), 'moviesMine');
-				console.log(tmdb.getImgConfig());
 			}).catch((err) => {
 				console.log("error in getMovieList", err);
 			});
@@ -52,7 +50,6 @@ const googleAuth = () => {
 
 const wishListEvents = () => {
 	$('body').on('click', '.wishlist', (e) => {
-		console.log('wishlist event', e);
 		let mommy = e.target.closest('.movie');
 
 
@@ -70,13 +67,39 @@ const wishListEvents = () => {
 		}).catch((err) => {
 			console.log("error in saveMovie", err);
 		});
-
 	});
+};
+
+const reviewEvents = () => {
+	$('body').on('click', '.review', (e) => {
+		let mommy = e.target.closest('.movie');
+
+		let newMovie = {
+			"title":$(mommy).find('.title').html(),
+			"overview":$(mommy).find('.overview').html(),
+			"poster_path":$(mommy).find('.poster_path').attr('src').split('/').pop(),
+			"rating": 0,
+			"isWatched": true,
+			"uid": ""
+		};
+		
+		firebaseApi.saveMovie(newMovie).then((results) => {
+			$(mommy).remove();
+		}).catch((err) => {
+			console.log("error in saveMovie", err);
+		});
+	});
+};
+
+const init = () => {
+	myLinks();
+    googleAuth();
+    pressEnter();
+    wishListEvents();
+    reviewEvents();
 };
 
 
 
 
-
-
-module.exports = {pressEnter, myLinks, googleAuth, wishListEvents};
+module.exports = {pressEnter, myLinks, googleAuth, wishListEvents, reviewEvents, init};
