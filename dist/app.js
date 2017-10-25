@@ -39,14 +39,14 @@ const domString = (movieArray, imgConfig, divName) => {
 			// console.log(i % 3);
 			domStrang += `<div class="row">`;
 		}
-		domStrang += `<div class="col-sm-6 col-md-4">`;
+		domStrang += `<div class="col-sm-6 col-md-4 movie">`;
 		domStrang +=   `<div class="thumbnail">`;
 		domStrang +=     `<img src="" alt="">`;
 		domStrang +=     `<div class="caption">`;
-		domStrang +=       `<img src="${imgConfig.base_url}w342/${movieArray[i].poster_path}">`;
-		domStrang +=       `<h3>${movieArray[i].title}</h3>`;
-		domStrang +=       `<p>${movieArray[i].overview}</p>`;
-		domStrang +=       `<p><a href="#" class="btn btn-primary" role="button">Review</a> <a href="#" class="btn btn-default" role="button">Watchlist</a></p>`;
+		domStrang +=       `<img class="poster_path" src="${imgConfig.base_url}w342/${movieArray[i].poster_path}">`;
+		domStrang +=       `<h3 class="title">${movieArray[i].title}</h3>`;
+		domStrang +=       `<p class="overview">${movieArray[i].overview}</p>`;
+		domStrang +=       `<p><a href="#" class="btn btn-primary" role="button">Review</a> <a class="btn btn-default wishlist" role="button">Wishlist</a></p>`;
 		domStrang +=     `</div>`;
 		domStrang +=   `</div>`;
 		domStrang += `</div>`;
@@ -120,7 +120,32 @@ const googleAuth = () => {
 	});
 };
 
-module.exports = {pressEnter, myLinks, googleAuth};
+const wishListEvents = () => {
+	$('body').on('click', '.wishlist', (e) => {
+		console.log('wishlist event', e);
+		let mommy = e.target.closest('.movie');
+
+
+		let newMovie = {
+			"title":$(mommy).find('.title').html(),
+			"overview":$(mommy).find('.overview').html(),
+			"poster_path":$(mommy).find('.poster_path').attr('src').split('/').pop(),
+			"rating": 0,
+			"isWatched": false,
+			"uid": ""
+		};
+		console.log("newMovie", newMovie);
+		// firebaseApi.saveMovie().then().catch();
+
+	});
+};
+
+
+
+
+
+
+module.exports = {pressEnter, myLinks, googleAuth, wishListEvents};
 },{"./dom":2,"./firebaseApi":4,"./tmdb":6}],4:[function(require,module,exports){
 "use strict";
 
@@ -174,6 +199,7 @@ apiKeys.retrieveKeys();
 events.myLinks();
 events.googleAuth();
 events.pressEnter();
+events.wishListEvents();
 },{"./apiKeys":1,"./events":3}],6:[function(require,module,exports){
 "use strict";
 
