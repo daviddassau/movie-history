@@ -134,8 +134,12 @@ const wishListEvents = () => {
 			"isWatched": false,
 			"uid": ""
 		};
-		console.log("newMovie", newMovie);
-		// firebaseApi.saveMovie().then().catch();
+		
+		firebaseApi.saveMovie(newMovie).then((results) => {
+			$(mommy).remove();
+		}).catch((err) => {
+			console.log("error in saveMovie", err);
+		});
 
 	});
 };
@@ -188,7 +192,35 @@ const getMovieList = () => {
 	});
 };
 
-module.exports = {setKey, authenticateGoogle, getMovieList};
+const saveMovie = (movie) => {
+	movie.uid = userUid;
+	return new Promise((resolve, reject) => {
+		$.ajax({
+			method: "POST",
+			url: `${firebaseKey.databaseURL}/movies.json`,
+			data: JSON.stringify(movie)
+		}).then((result) => {
+			resolve(result);
+		}).catch((error) => {
+			reject(error);
+		});
+	});
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+module.exports = {setKey, authenticateGoogle, getMovieList, saveMovie};
 },{}],5:[function(require,module,exports){
 "use strict";
 
