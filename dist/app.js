@@ -46,7 +46,7 @@ const domString = (movieArray, imgConfig, divName) => {
 		domStrang +=       `<img class="poster_path" src="${imgConfig.base_url}w342/${movieArray[i].poster_path}">`;
 		domStrang +=       `<h3 class="title">${movieArray[i].title}</h3>`;
 		domStrang +=       `<p class="overview">${movieArray[i].overview}</p>`;
-		domStrang +=       `<p><a href="#" class="btn btn-primary" role="button">Review</a> <a class="btn btn-default wishlist" role="button">Wishlist</a></p>`;
+		domStrang +=       `<p><a class="btn btn-primary review" role="button">Review</a> <a class="btn btn-default wishlist" role="button">Wishlist</a></p>`;
 		domStrang +=     `</div>`;
 		domStrang +=   `</div>`;
 		domStrang += `</div>`;
@@ -91,11 +91,9 @@ const myLinks = () => {
 			$("#myMovies").addClass("hide");
 			$("#authScreen").addClass("hide");
 		}else if(event.target.id === "mine"){
-			console.log("inside mine");
 			firebaseApi.getMovieList().then((results) => {
 				dom.clearDom('moviesMine');
 				dom.domString(results, tmdb.getImgConfig(), 'moviesMine');
-				console.log(tmdb.getImgConfig());
 			}).catch((err) => {
 				console.log("error in getMovieList", err);
 			});
@@ -122,7 +120,6 @@ const googleAuth = () => {
 
 const wishListEvents = () => {
 	$('body').on('click', '.wishlist', (e) => {
-		console.log('wishlist event', e);
 		let mommy = e.target.closest('.movie');
 
 
@@ -140,16 +137,42 @@ const wishListEvents = () => {
 		}).catch((err) => {
 			console.log("error in saveMovie", err);
 		});
-
 	});
+};
+
+const reviewEvents = () => {
+	$('body').on('click', '.review', (e) => {
+		let mommy = e.target.closest('.movie');
+
+		let newMovie = {
+			"title":$(mommy).find('.title').html(),
+			"overview":$(mommy).find('.overview').html(),
+			"poster_path":$(mommy).find('.poster_path').attr('src').split('/').pop(),
+			"rating": 0,
+			"isWatched": true,
+			"uid": ""
+		};
+		
+		firebaseApi.saveMovie(newMovie).then((results) => {
+			$(mommy).remove();
+		}).catch((err) => {
+			console.log("error in saveMovie", err);
+		});
+	});
+};
+
+const init = () => {
+	myLinks();
+    googleAuth();
+    pressEnter();
+    wishListEvents();
+    reviewEvents();
 };
 
 
 
 
-
-
-module.exports = {pressEnter, myLinks, googleAuth, wishListEvents};
+module.exports = {pressEnter, myLinks, googleAuth, wishListEvents, reviewEvents, init};
 },{"./dom":2,"./firebaseApi":4,"./tmdb":6}],4:[function(require,module,exports){
 "use strict";
 
@@ -228,10 +251,7 @@ let events = require('./events');
 let apiKeys = require('./apiKeys');
 
 apiKeys.retrieveKeys();
-events.myLinks();
-events.googleAuth();
-events.pressEnter();
-events.wishListEvents();
+events.init();
 },{"./apiKeys":1,"./events":3}],6:[function(require,module,exports){
 "use strict";
 
