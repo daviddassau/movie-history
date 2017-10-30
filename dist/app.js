@@ -53,7 +53,8 @@ const domString = (movieArray, imgConfig, divName, search) => {
 		if(search){
 			domStrang +=       `<p><a class="btn btn-primary review" role="button">Review</a> <a class="btn btn-default wishlist" role="button">Wishlist</a></p>`;
 		} else {
-			domStrang += `<p>Rating: ${movieArray[i].rating}</p>`;
+			domStrang += `<label for="stars_${movieArray[i].id}" class="control-label">Rate This</label>`;
+			domStrang += `<input id="stars_${movieArray[i].id}" name="stars_${movieArray[i].id}" class="stars rating-loading" value="${movieArray[i].rating}">`;
 		}
 		
 		domStrang +=     `</div>`;
@@ -63,11 +64,27 @@ const domString = (movieArray, imgConfig, divName, search) => {
 			domStrang += `</div>`;
 		}
 	}
-	printToDom(domStrang, divName);
+
+	if(!search){
+		printToDom(domString, divName, movieArray);
+	}else{
+		printToDom(domString, divName);
+	}
+	
 };
 
-const printToDom = (strang, divName) => {
+const initializeStars = (starArray) => {
+	starArray.forEach((star) => {
+		$("#stars_" + star.id).rating();
+	});
+};
+
+const printToDom = (strang, divName, starArray) => {
 	$(`#${divName}`).append(strang);
+
+	if(starArray){
+		initializeStars(starArray);
+	}
 };
 
 const clearDom = (divName) => {
